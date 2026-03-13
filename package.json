@@ -1,0 +1,26 @@
+{
+  "name": "dep-tracker",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "dep-tracker": "./src/cli/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/cli/index.ts",
+    "build": "bun run scripts/build.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "d3": "^7.9.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/d3": "^7.4.3",
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "src/",
+    "dist/"
+  ]
+}

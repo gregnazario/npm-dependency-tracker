@@ -1,0 +1,143 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a12;
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 260px;
+  background: #12121a;
+  border-right: 1px solid #2a2a3a;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sidebar-section {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.section-title {
+  color: #888;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* Toggle groups */
+.toggle-group {
+  display: flex;
+  background: #1e1e2e;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toggle-btn.active {
+  background: #6366f1;
+  color: white;
+  font-weight: 600;
+}
+
+.toggle-group-small .toggle-btn { font-size: 11px; padding: 4px; }
+
+/* Search */
+.search-input {
+  width: 100%;
+  background: #1e1e2e;
+  border: 1px solid #2a2a3a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #e2e8f0;
+  font-size: 12px;
+  outline: none;
+}
+
+.search-input:focus { border-color: #6366f1; }
+.search-input::placeholder { color: #555; }
+
+/* Stats */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.stat-label { color: #888; font-size: 11px; }
+.stat-value { color: #c4b5fd; font-size: 11px; font-weight: 600; }
+
+/* Legend */
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.legend-label { color: #aaa; font-size: 11px; }
+
+/* Depth slider */
+.depth-slider {
+  width: 100%;
+  accent-color: #6366f1;
+}
+
+/* Duplicates */
+.badge {
+  background: #dc2626;
+  color: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.dupe-card {
+  background: #1e1e2e;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border-left: 3px solid #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dupe-card:hover { background: #252538; }
+.dupe-name { color: #e2e8f0; font-size: 12px; font-weight: 600; }
+.dupe-versions { color: #888; font-size: 11px; }
+
+.duplicates-section { flex: 1; overflow-y: auto; }
+
+/* Graph area */
+#graph-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#graph-container svg {
+  width: 100%;
+  height: 100%;
+  background: #0a0a12;
+}
