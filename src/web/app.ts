@@ -1,22 +1,48 @@
 import * as d3 from "d3";
-import type { DependencyGraph, DependencyNode } from "../parsers/types";
+import type { DependencyGraph, DependencyNode, DependencyEdge } from "../parsers/types";
 import { renderForceLayout } from "./graph/force-layout";
 import { renderTreeLayout } from "./graph/tree-layout";
 import { renderRadialLayout } from "./graph/radial-layout";
-import { renderSidebar, type GraphMode, type LayoutMode } from "./components/sidebar";
+import { renderSidebar, type EdgeTypeFilter, type LayoutMode } from "./components/sidebar";
 import { applySearchHighlight, highlightDuplicate } from "./components/search";
 
-let currentMode: GraphMode = "full";
 let currentLayout: LayoutMode = "force";
 let currentGraph: DependencyGraph | null = null;
 let currentMaxDepth = Infinity;
+let currentEdgeFilter: EdgeTypeFilter = {
+  dependency: true,
+  devDependency: true,
+  peerDependency: true,
+  optionalDependency: true,
+};
 
 const sidebar = document.getElementById("sidebar")!;
 const graphContainer = document.getElementById("graph-container")!;
 
-async function fetchGraph(mode: GraphMode): Promise<DependencyGraph> {
-  const res = await fetch(`/api/graph?mode=${mode}`);
+async function fetchGraph(): Promise<DependencyGraph> {
+  const res = await fetch("/api/graph");
   return res.json();
+}
+
+function filterByEdgeTypes(graph: DependencyGraph, filter: EdgeTypeFilter): DependencyGraph {
+  const enabledEdges = graph.edges.filter((e) => filter[e.type]);
+
+  // BFS from root to find reachable nodes
+  const reachable = new Set<string>([graph.rootId]);
+  const queue = [graph.rootId];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of enabledEdges) {
+      if (edge.source === current && !reachable.has(edge.target)) {
+        reachable.add(edge.target);
+        queue.push(edge.target);
+      }
+    }
+  }
+
+  const nodes = graph.nodes.filter((n) => reachable.has(n.id));
+  const edges = enabledEdges.filter((e) => reachable.has(e.source) && reachable.has(e.target));
+  return { ...graph, nodes, edges };
 }
 
 function filterByDepth(graph: DependencyGraph, maxDepth: number): DependencyGraph {
@@ -28,7 +54,8 @@ function filterByDepth(graph: DependencyGraph, maxDepth: number): DependencyGrap
 }
 
 function renderGraph(graph: DependencyGraph) {
-  const filtered = filterByDepth(graph, currentMaxDepth);
+  const edgeFiltered = filterByEdgeTypes(graph, currentEdgeFilter);
+  const filtered = filterByDepth(edgeFiltered, currentMaxDepth);
   const svgEl = document.getElementById("graph-svg") as unknown as SVGSVGElement;
   const svg = d3.select<SVGSVGElement, unknown>(svgEl);
   const { width, height } = graphContainer.getBoundingClientRect();
@@ -55,13 +82,11 @@ function renderGraph(graph: DependencyGraph) {
 
 function updateSidebar() {
   if (!currentGraph) return;
-  renderSidebar(sidebar, currentGraph, currentMode, currentLayout, {
-    onModeChange: async (mode) => {
-      currentMode = mode;
-      currentGraph = await fetchGraph(mode);
-      currentMaxDepth = currentGraph.stats.maxDepth;
+  renderSidebar(sidebar, currentGraph, currentEdgeFilter, currentLayout, {
+    onEdgeTypeToggle: (type, enabled) => {
+      currentEdgeFilter[type] = enabled;
       updateSidebar();
-      renderGraph(currentGraph);
+      if (currentGraph) renderGraph(currentGraph);
     },
     onLayoutChange: (layout) => {
       currentLayout = layout;
@@ -78,16 +103,12 @@ function updateSidebar() {
 }
 
 async function init() {
-  // Parse initial mode from URL
-  const params = new URLSearchParams(window.location.search);
-  currentMode = (params.get("mode") as GraphMode) ?? "full";
-
   // Create SVG
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.id = "graph-svg";
   graphContainer.appendChild(svg);
 
-  currentGraph = await fetchGraph(currentMode);
+  currentGraph = await fetchGraph();
   currentMaxDepth = currentGraph.stats.maxDepth;
   updateSidebar();
   renderGraph(currentGraph);

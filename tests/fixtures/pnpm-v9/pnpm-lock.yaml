@@ -1,0 +1,43 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+
+importers:
+  .:
+    dependencies:
+      express:
+        specifier: ^4.18.0
+        version: 4.18.2
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.3.3
+
+packages:
+  express@4.18.2:
+    resolution: {integrity: sha512-abc}
+    engines: {node: '>= 0.10.0'}
+
+  debug@2.6.9:
+    resolution: {integrity: sha512-def}
+
+  ms@2.0.0:
+    resolution: {integrity: sha512-ghi}
+
+  typescript@5.3.3:
+    resolution: {integrity: sha512-jkl}
+    engines: {node: '>=14.17'}
+
+snapshots:
+  express@4.18.2:
+    dependencies:
+      debug: 2.6.9
+
+  debug@2.6.9:
+    dependencies:
+      ms: 2.0.0
+
+  ms@2.0.0: {}
+
+  typescript@5.3.3: {}

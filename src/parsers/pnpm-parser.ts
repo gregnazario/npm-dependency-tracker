@@ -16,12 +16,18 @@ interface PnpmLock {
     dependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
   }>;
+  snapshots?: Record<string, {
+    dependencies?: Record<string, string>;
+    optionalDependencies?: Record<string, string>;
+  }>;
 }
 
 function parsePackageKey(key: string): { name: string; version: string } {
-  // Format: "package@version" or "@scope/package@version"
-  const atIdx = key.lastIndexOf("@");
-  return { name: key.substring(0, atIdx), version: key.substring(atIdx + 1) };
+  // Strip peer dep context: "@scope/pkg@1.0.0(peer@2.0.0)" → "@scope/pkg@1.0.0"
+  const parenIdx = key.indexOf("(");
+  const bare = parenIdx >= 0 ? key.substring(0, parenIdx) : key;
+  const atIdx = bare.lastIndexOf("@");
+  return { name: bare.substring(0, atIdx), version: bare.substring(atIdx + 1) };
 }
 
 export function parsePnpm(projectPath: string): DependencyGraph {
@@ -43,6 +49,8 @@ export function parsePnpm(projectPath: string): DependencyGraph {
   nodes.push({ id: rootId, name: pkg.name, version: pkg.version, depth: 0, isDuplicate: false, dependentCount: 0 });
 
   const visited = new Set<string>();
+  // v9 uses snapshots for dep trees; v6 stores deps directly in packages
+  const depLookup = lock.snapshots ?? lock.packages;
 
   function walk(pkgKey: string, parentId: string, depth: number, edgeType: DependencyEdge["type"]): void {
     const { name, version } = parsePackageKey(pkgKey);
@@ -53,10 +61,10 @@ export function parsePnpm(projectPath: string): DependencyGraph {
     visited.add(nodeId);
     nodes.push({ id: nodeId, name, version, depth, isDuplicate: false, dependentCount: 0 });
 
-    const pkgData = lock.packages[pkgKey];
-    if (!pkgData) return;
+    const snapshotData = depLookup[pkgKey];
+    if (!snapshotData) return;
 
-    for (const [depName, depVersion] of Object.entries(pkgData.dependencies ?? {})) {
+    for (const [depName, depVersion] of Object.entries(snapshotData.dependencies ?? {})) {
       walk(`${depName}@${depVersion}`, nodeId, depth + 1, "dependency");
     }
   }

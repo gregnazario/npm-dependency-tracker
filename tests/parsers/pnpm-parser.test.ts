@@ -3,6 +3,7 @@ import { join } from "path";
 import { parsePnpm } from "../../src/parsers/pnpm-parser";
 
 const FIXTURE = join(import.meta.dir, "../fixtures/pnpm");
+const FIXTURE_V9 = join(import.meta.dir, "../fixtures/pnpm-v9");
 
 describe("parsePnpm", () => {
   test("parses all nodes from pnpm-lock.yaml", () => {
@@ -31,5 +32,14 @@ describe("parsePnpm", () => {
     expect(graph.stats.totalPackages).toBe(4);
     expect(graph.stats.directDeps).toBe(1);
     expect(graph.stats.devDeps).toBe(1);
+  });
+
+  test("v9 with snapshots resolves full transitive tree", () => {
+    const graph = parsePnpm(FIXTURE_V9);
+    expect(graph.stats.maxDepth).toBeGreaterThan(1);
+    // express -> debug -> ms = depth 3
+    const msNode = graph.nodes.find((n) => n.name === "ms");
+    expect(msNode).toBeDefined();
+    expect(msNode!.depth).toBe(3);
   });
 });

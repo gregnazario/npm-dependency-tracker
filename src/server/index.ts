@@ -5,7 +5,6 @@ import { parseNpm } from "../parsers/npm-parser";
 import { parseYarn } from "../parsers/yarn-parser";
 import { parsePnpm } from "../parsers/pnpm-parser";
 import { parseBun } from "../parsers/bun-parser";
-import { filterProdGraph } from "../parsers/graph-utils";
 import type { DependencyGraph } from "../parsers/types";
 
 function parseProject(projectPath: string): DependencyGraph {
@@ -23,7 +22,6 @@ function parseProject(projectPath: string): DependencyGraph {
 export async function startServer(projectPath: string, port: number) {
   const absPath = resolve(projectPath);
   const fullGraph = parseProject(absPath);
-  const prodGraph = filterProdGraph(fullGraph);
 
   // Resolve web assets directory (dist/web in production, src/web in dev)
   const distWeb = join(import.meta.dir, "../../dist/web");
@@ -36,9 +34,7 @@ export async function startServer(projectPath: string, port: number) {
       const url = new URL(req.url);
 
       if (url.pathname === "/api/graph") {
-        const mode = url.searchParams.get("mode") ?? "full";
-        const graph = mode === "prod" ? prodGraph : fullGraph;
-        return Response.json(graph);
+        return Response.json(fullGraph);
       }
 
       // Static file serving
@@ -54,5 +50,5 @@ export async function startServer(projectPath: string, port: number) {
     },
   });
 
-  return { server, fullGraph, prodGraph };
+  return { server, fullGraph };
 }

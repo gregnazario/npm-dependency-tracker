@@ -25,23 +25,12 @@ describe("server", () => {
     expect(res.headers.get("content-type")).toContain("text/html");
   });
 
-  test("GET /api/graph?mode=full returns valid graph JSON", async () => {
-    const res = await fetch(`${baseUrl}/api/graph?mode=full`);
+  test("GET /api/graph returns valid graph JSON", async () => {
+    const res = await fetch(`${baseUrl}/api/graph`);
     expect(res.status).toBe(200);
     const graph: DependencyGraph = await res.json();
     expect(graph.nodes.length).toBeGreaterThan(0);
     expect(graph.rootId).toBeDefined();
     expect(graph.stats.totalPackages).toBeGreaterThan(0);
-  });
-
-  test("GET /api/graph?mode=prod returns fewer nodes than full", async () => {
-    const fullRes = await fetch(`${baseUrl}/api/graph?mode=full`);
-    const full: DependencyGraph = await fullRes.json();
-
-    const prodRes = await fetch(`${baseUrl}/api/graph?mode=prod`);
-    const prod: DependencyGraph = await prodRes.json();
-
-    expect(prod.nodes.length).toBeLessThanOrEqual(full.nodes.length);
-    expect(prod.edges.every((e) => e.type !== "devDependency")).toBe(true);
   });
 });

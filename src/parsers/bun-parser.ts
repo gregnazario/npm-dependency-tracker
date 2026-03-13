@@ -12,7 +12,7 @@ interface BunLock {
     peerDependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
   }>;
-  packages: Record<string, [string, { dependencies?: Record<string, string> }]>;
+  packages: Record<string, any[]>;
 }
 
 function parseBunLockJson(content: string): BunLock {
@@ -73,7 +73,10 @@ export function parseBun(projectPath: string): DependencyGraph {
 
     const pkgEntry = lock.packages[depName];
     if (!pkgEntry) return;
-    const deps = pkgEntry[1]?.dependencies ?? {};
+    // bun.lock arrays vary: [resolved, {deps}] or [resolved, registry, {deps}, hash]
+    // Find the first object element which contains the dependencies
+    const depsObj = pkgEntry.find((el): el is Record<string, any> => typeof el === "object" && el !== null);
+    const deps = depsObj?.dependencies ?? {};
     for (const [childName] of Object.entries(deps)) {
       walk(childName, nodeId, depth + 1, "dependency");
     }

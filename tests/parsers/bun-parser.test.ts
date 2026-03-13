@@ -25,4 +25,13 @@ describe("parseBun", () => {
     const debugEdge = graph.edges.find((e) => e.target === "debug@2.6.9");
     expect(debugEdge?.source).toBe("express@4.18.2");
   });
+
+  test("resolves full transitive tree with depth > 1", () => {
+    const graph = parseBun(FIXTURE);
+    expect(graph.stats.maxDepth).toBeGreaterThan(1);
+    // express -> debug -> ms = depth 3
+    const msNode = graph.nodes.find((n) => n.name === "ms");
+    expect(msNode).toBeDefined();
+    expect(msNode!.depth).toBe(3);
+  });
 });
