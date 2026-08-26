@@ -99,9 +99,7 @@ bun run build
   supported yet: it ranks ahead of `bun.lock` during detection, but parsing then
   reads the text `bun.lock` if present — which can be stale relative to the
   binary file — and errors with "binary format requires CLI fallback" when no
-  text lock exists. It ranks
-  ahead of `bun.lock` in detection, so repos with both fail fast rather than
-  silently parsing the stale text file.
+  text lock exists.
 - The package-manager-CLI fallback (`npm ls --all --json`) exists but only the
   npm path is implemented; yarn/pnpm/bun fallbacks currently throw.
 - Lockfiles are parsed once at startup — edits while the server runs are not
