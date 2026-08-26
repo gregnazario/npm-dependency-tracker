@@ -19,9 +19,9 @@ runs entirely on your machine.
 
 ## Features
 
-- **Lockfile auto-detection** across all four managers — checks for `bun.lock`,
-  `pnpm-lock.yaml`, `yarn.lock`, and `package-lock.json` (in that priority
-  order) next to a `package.json`
+- **Lockfile auto-detection** across all four managers — checks for `bun.lockb`
+  or `bun.lock`, then `pnpm-lock.yaml`, `yarn.lock`, and `package-lock.json`
+  (in that priority order) next to a `package.json`
 - **Three D3 layouts** — force-directed, top-down tree, and radial, switchable
   live from the sidebar
 - **Prod vs full modes** — `--mode prod|full` on the CLI; dependency-type layers
@@ -96,7 +96,12 @@ bun run build
 ## Known limitations
 
 - Only text-based locks are parsed. bun's binary `bun.lockb` is detected but not
-  supported yet — the CLI will tell you to use the text `bun.lock`.
+  supported yet: it ranks ahead of `bun.lock` during detection, but parsing then
+  reads the text `bun.lock` if present — which can be stale relative to the
+  binary file — and errors with "binary format requires CLI fallback" when no
+  text lock exists. It ranks
+  ahead of `bun.lock` in detection, so repos with both fail fast rather than
+  silently parsing the stale text file.
 - The package-manager-CLI fallback (`npm ls --all --json`) exists but only the
   npm path is implemented; yarn/pnpm/bun fallbacks currently throw.
 - Lockfiles are parsed once at startup — edits while the server runs are not
