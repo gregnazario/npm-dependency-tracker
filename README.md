@@ -1,6 +1,6 @@
 # npm-dependency-tracker
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 `dep-tracker` parses any JavaScript lockfile and lets you explore the dependency
 graph locally in your browser — no uploads, no accounts, no telemetry. Point it
@@ -116,4 +116,4 @@ bun run build   # bundle src/web → dist/web with Bun's built-in bundler
 
 ## License
 
-[MIT](LICENSE)
+[Apache-2.0](LICENSE)
