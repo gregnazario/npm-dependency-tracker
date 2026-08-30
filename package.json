@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "license": "Apache-2.0",
   "type": "module",
+  "packageManager": "bun@1.4.0",
   "bin": {
     "dep-tracker": "./src/cli/index.ts"
   },
